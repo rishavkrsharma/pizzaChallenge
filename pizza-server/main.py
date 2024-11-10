@@ -294,10 +294,10 @@ async def get_user_purchased_slices(data: dict ):
             slice_data = db.collection('pizzaslices').document(slice_id).get()
             if slice_data.exists:
                 purchases.append({
-                    "purchase_id": doc.id,
+                    "purchaseId": doc.id,
                     "slice": slice_data.to_dict(),
                     "timestamp": purchase_data.get('timestamp'),
-                    "price_paid": purchase_data.get('price')
+                    "coinsUsed": purchase_data.get('price')
                 })
         
         return purchases
