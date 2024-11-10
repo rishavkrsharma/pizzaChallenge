@@ -1,5 +1,4 @@
 "use client";
-import Link from "next/link";
 import Header from "../components/header";
 import { FormEvent, useState } from "react";
 import { serverBaseUrl } from "../constants/index";
@@ -30,9 +29,13 @@ export default function NewUser() {
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
+
     if (!formState.name) {
       newErrors.name = "Name is required";
+    } else if (!/^[a-zA-Z\s]+$/.test(formState.name)) {
+      newErrors.name = "Name must contain only alphabetical characters";
     }
+
     if (formState.age === "" || formState.age < 0) {
       newErrors.age = "Age is required and must be non-negative";
     }
@@ -56,8 +59,6 @@ export default function NewUser() {
         },
         body: JSON.stringify(formState),
       });
-
-      console.log("🚀 ~ handleSubmit ~ response:", response);
 
       toast.success(`User created successfully!`, {
         duration: 10000,

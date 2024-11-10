@@ -1,7 +1,6 @@
 import { Dialog, DialogBackdrop, DialogPanel } from "@headlessui/react";
 import toast from "react-hot-toast";
 import { serverBaseUrl } from "../constants";
-import { XIcon } from "@heroicons/react/outline";
 import { useEffect, useState } from "react";
 
 interface BuyPizzaModalProps {
@@ -19,30 +18,14 @@ export default function BuyPizzaModal({
 }: BuyPizzaModalProps): JSX.Element {
   const [pizzas, setPizzas] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // const handleDeactivate = async () => {
-  //   try {
-  //     const response = await fetch(`${serverBaseUrl}/delete-user/${userId}`, {
-  //       method: "DELETE",
-  //     });
-  //     console.log("DELETE USER RESPONsE ", response);
-
-  //     if (response.ok) {
-  //       refetchUsers();
-  //       toast.success("User deleted successfully!");
-  //       setOpen(false);
-  //     } else {
-  //       console.error("Failed to deactivate the account");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error during API call", error);
-  //   }
-  // };
+  const [cart, setCart] = useState({});
+  const [totalCartValue, setTotalCartValue] = useState(0);
+  const [buying, setBuying] = useState(false);
 
   const fetchSlices = async () => {
     try {
       const response = await fetch(`${serverBaseUrl}/all-pizza-slices`, {
-        method: "POST", //TURN THIS INTO GET AFTER DEPLOYING
+        method: "GET",
       });
 
       const data = await response.json();
@@ -50,14 +33,67 @@ export default function BuyPizzaModal({
       setPizzas(data);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.log("Error fetching users:", error);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSlices();
-  }, []);
+    if (open) {
+      setCart({});
+      setTotalCartValue(0);
+      fetchSlices();
+    }
+  }, [open]);
+
+  const handleIncrement = (pizzaId, price) => {
+    setCart((prevCart) => {
+      const newCart = { ...prevCart };
+      newCart[pizzaId] = (newCart[pizzaId] || 0) + 1;
+      setTotalCartValue(totalCartValue + price);
+      return newCart;
+    });
+  };
+
+  const handleDecrement = (pizzaId, price) => {
+    setCart((prevCart) => {
+      const newCart = { ...prevCart };
+      if (newCart[pizzaId] > 0) {
+        newCart[pizzaId] -= 1;
+        setTotalCartValue(totalCartValue - price);
+      }
+      return newCart;
+    });
+  };
+
+  const handleBuy = async () => {
+    setBuying(true);
+    try {
+      const cartItems = Object.entries(cart).filter(
+        ([, quantity]) => quantity > 0
+      );
+
+      for (const [pizzaId] of cartItems) {
+        await fetch(`${serverBaseUrl}/buy-pizza`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            sliceId: pizzaId,
+          }),
+        });
+      }
+      toast.success("Pizza bought successfully!");
+      refetchUsers();
+      setOpen(false);
+    } catch (error) {
+      console.error("Error purchasing pizzas:", error);
+    } finally {
+      setBuying(false);
+    }
+  };
 
   return (
     <Dialog open={open} onClose={setOpen} className="relative z-10">
@@ -74,9 +110,9 @@ export default function BuyPizzaModal({
           >
             <div className="flex text-base text-left transform transition w-full md:inline-block md:px-4 md:my-4 md:align-middle ">
               <h2 className="text-xl font-bold tracking-wide">
-                Buy Pizza Slices
+                Buy Pizza Slices for {user?.name}
               </h2>
-              <div className="grid grid-cols-1 gap-4 mt-4">
+              <div className="grid grid-cols-1 gap-2 mt-2">
                 {pizzas.map((pizza) => (
                   <div
                     key={pizza?.id}
@@ -132,9 +168,31 @@ export default function BuyPizzaModal({
                           </div>
                         </div>
 
-                        <p className="text-sm text-gray-500 truncate">
-                          {pizza?.description}
-                        </p>
+                        <div className="flex mt-1 flex-row items-center justify-between">
+                          <p className="text-sm text-gray-500 truncate">
+                            {pizza?.description}
+                          </p>
+                          <div>
+                            <button
+                              onClick={() =>
+                                handleDecrement(pizza.id, pizza.price)
+                              }
+                              className="px-2 bg-red-300 rounded-md"
+                              disabled={!cart[pizza.id]}
+                            >
+                              -
+                            </button>
+                            <span className="mx-2">{cart[pizza.id] || 0}</span>
+                            <button
+                              onClick={() =>
+                                handleIncrement(pizza.id, pizza.price)
+                              }
+                              className="px-2 bg-green-300 rounded-md"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
                       </div>
                       <div className="text-sm font-medium text-gray-800 mt-2">
                         <span className="mr-2">Toppings:</span>
@@ -151,21 +209,62 @@ export default function BuyPizzaModal({
                   </div>
                 ))}
               </div>
-              <div className="mt-3 sm:flex sm:flex-row-reverse ">
-                <button
-                  type="button"
-                  // onClick={handleDeactivate}
-                  className="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 sm:ml-3 sm:w-auto"
-                >
-                  Buy
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                >
-                  Cancel
-                </button>
+              <div className="flex flex-row items-center justify-between mt-3 ">
+                <span>
+                  Available Coins: {user.coins} Cart Value: {totalCartValue}
+                </span>
+
+                <div className="sm:flex sm:flex-row-reverse ">
+                  <button
+                    type="button"
+                    onClick={handleBuy}
+                    disabled={
+                      totalCartValue > user.coins ||
+                      totalCartValue === 0 ||
+                      buying
+                    }
+                    className={`inline-flex w-full justify-center rounded-md ${
+                      totalCartValue > user.coins || buying
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-500"
+                    } px-3 py-1.5 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto`}
+                  >
+                    {buying ? (
+                      <div className="flex items-center">
+                        <svg
+                          className="animate-spin h-5 w-5 mr-2 text-white"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v2a6 6 0 100 12v2a8 8 0 01-8-8z"
+                          ></path>
+                        </svg>
+                        Processing...
+                      </div>
+                    ) : (
+                      "Buy"
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </DialogPanel>
