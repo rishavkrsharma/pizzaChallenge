@@ -69,7 +69,7 @@ async def create_user(user: User):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/all-users/") #change this to get after deploying
+@app.get("/all-users/")
 async def get_users():
     try:
         users = []
@@ -204,7 +204,7 @@ async def get_leaderboard():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/all-pizza-slices/")
+@app.get("/all-pizza-slices/")
 async def get_pizza_slices():
     try:
         slices = []
