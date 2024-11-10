@@ -6,7 +6,7 @@ import {
 } from "@headlessui/react";
 import { serverBaseUrl } from "../constants";
 import toast from "react-hot-toast";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 interface UpdateAccountModalProps {
   open: boolean;

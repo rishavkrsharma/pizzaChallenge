@@ -1,16 +1,6 @@
-"use client";
-import Image from "next/image";
-import { useTheme } from "next-themes";
 import Link from "next/link";
 
 export default function Home() {
-  const { theme, setTheme } = useTheme();
-
-  const handleThemeToggle = () => {
-    const newTheme = theme == "light" ? "dark" : "light";
-    setTheme(newTheme);
-  };
-
   return (
     <>
       <header className="bg-transparent">

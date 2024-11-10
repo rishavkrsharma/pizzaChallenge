@@ -84,7 +84,7 @@ export default function HistoryPizzaModal({
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-2 mt-2">
-                    {history.map((pizza) => (
+                    {history.map((pizza: any) => (
                       <div
                         key={pizza?.logId}
                         className="relative rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm flex items-center space-x-3 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"

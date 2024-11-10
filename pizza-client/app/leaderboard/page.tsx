@@ -1,23 +1,18 @@
 "use client";
-import Image from "next/image";
-import { useTheme } from "next-themes";
-import Link from "next/link";
 import Header from "../components/header";
-import { ArrowSmDownIcon, ArrowSmUpIcon } from "@heroicons/react/solid";
-import ClassNames from "../utils/classnamesUtil";
 
 import { useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 
 export default function Home() {
-  const [leaderboard, setLeaderboard] = useState<User[]>([]);
+  const [leaderboard, setLeaderboard] = useState<any>([]);
 
   useEffect(() => {
     const q = query(collection(db, "users"), orderBy("pizzasEaten", "desc"));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const users: User[] = snapshot.docs.map((doc) => ({
+      const users: any = snapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
         pizzasEaten: doc.data().pizzasEaten,
@@ -46,7 +41,7 @@ export default function Home() {
         </div>
         <div className="max-w-6xl mx-auto py-4">
           <ul role="list" className="divide-y divide-gray-100">
-            {leaderboard.map((person, index) => (
+            {leaderboard.map((person: any, index: number) => (
               <li key={person.id} className="flex justify-between gap-x-6 py-5">
                 <div className="flex min-w-0 gap-x-4 items-center">
                   <p className="text-sm font-semibold text-gray-900">

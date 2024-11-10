@@ -12,7 +12,7 @@ import UpdateAccountModal from "../components/updateAccountModal";
 export default function ManagePlayers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState({});
+  const [selectedUser, setSelectedUser] = useState<any>({});
 
   const [openUpdateUserModal, setOpenUpdateUserModal] = useState(false);
   const [openDeleteUserModal, setOpenDeleteUserModal] = useState(false);
@@ -40,7 +40,7 @@ export default function ManagePlayers() {
     fetchUsers();
   }, []);
 
-  const handleOpenDialog = (user, type: string) => {
+  const handleOpenDialog = (user: any, type: string) => {
     setSelectedUser(user);
 
     switch (type) {
@@ -76,7 +76,7 @@ export default function ManagePlayers() {
                 <span className="text-indigo-600">Participants</span>
               </h1>
               <p className="mt-5 text-2xl text-gray-500">
-                Manage the Participate of the Pizza Challenge
+                Manage the Participants of the Pizza Challenge
               </p>
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function ManagePlayers() {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {users.map((user) => (
+                {users.map((user: any) => (
                   <div
                     key={user?.id}
                     className="relative rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm flex items-center space-x-3 "
@@ -271,7 +271,6 @@ export default function ManagePlayers() {
         open={logPizzaOpen}
         setOpen={setLogPizzaOpen}
         user={selectedUser}
-        refetchUsers={() => fetchUsers()}
       />
 
       <HistoryPizzaModal

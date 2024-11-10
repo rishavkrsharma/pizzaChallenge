@@ -17,7 +17,7 @@ export default function LogPizzaModal({
   const [pizzas, setPizzas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [logging, setLogging] = useState(false);
-  const [selectedPizzas, setSelectedPizzas] = useState([]);
+  const [selectedPizzas, setSelectedPizzas] = useState<any>([]);
 
   const fetchPurchasedSlices = async () => {
     setLoading(true);
@@ -45,11 +45,13 @@ export default function LogPizzaModal({
     if (open) fetchPurchasedSlices();
   }, [open]);
 
-  const toggleSelectPizza = (pizza) => {
-    setSelectedPizzas((prevSelected) =>
-      prevSelected.some((selected) => selected.purchaseId === pizza.purchaseId)
+  const toggleSelectPizza = (pizza: any) => {
+    setSelectedPizzas((prevSelected: any[]) =>
+      prevSelected.some(
+        (selected: any) => selected.purchaseId === pizza.purchaseId
+      )
         ? prevSelected.filter(
-            (selected) => selected.purchaseId !== pizza.purchaseId
+            (selected: any) => selected.purchaseId !== pizza.purchaseId
           )
         : [...prevSelected, pizza]
     );
@@ -125,14 +127,14 @@ export default function LogPizzaModal({
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-2 mt-2">
-                    {pizzas.map((pizza) => (
+                    {pizzas.map((pizza: any) => (
                       <div
                         key={pizza?.purchaseId}
                         onClick={() => toggleSelectPizza(pizza)}
                         className={`relative rounded-lg border ${
                           selectedPizzas.some(
-                            (selected) =>
-                              selected.purchaseId === pizza.purchaseId
+                            (selected: any) =>
+                              selected?.purchaseId === pizza.purchaseId
                           )
                             ? "border-green-500"
                             : "border-gray-300"

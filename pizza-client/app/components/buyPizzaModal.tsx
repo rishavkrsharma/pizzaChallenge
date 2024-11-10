@@ -10,6 +10,19 @@ interface BuyPizzaModalProps {
   refetchUsers: () => void;
 }
 
+type Cart = {
+  [key: string]: number;
+};
+
+export interface Pizza {
+  id: string;
+  name: string;
+  price: number;
+  calories: number;
+  description: string;
+  toppings: string[];
+}
+
 export default function BuyPizzaModal({
   open,
   setOpen,
@@ -18,7 +31,7 @@ export default function BuyPizzaModal({
 }: BuyPizzaModalProps): JSX.Element {
   const [pizzas, setPizzas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState({});
+  const [cart, setCart] = useState<{ [key: string]: number }>({});
   const [totalCartValue, setTotalCartValue] = useState(0);
   const [buying, setBuying] = useState(false);
 
@@ -46,18 +59,18 @@ export default function BuyPizzaModal({
     }
   }, [open]);
 
-  const handleIncrement = (pizzaId, price) => {
+  const handleIncrement = (pizzaId: string, price: number) => {
     setCart((prevCart) => {
-      const newCart = { ...prevCart };
+      const newCart: Cart = { ...prevCart };
       newCart[pizzaId] = (newCart[pizzaId] || 0) + 1;
       setTotalCartValue(totalCartValue + price);
       return newCart;
     });
   };
 
-  const handleDecrement = (pizzaId, price) => {
+  const handleDecrement = (pizzaId: string, price: number) => {
     setCart((prevCart) => {
-      const newCart = { ...prevCart };
+      const newCart: Cart = { ...prevCart };
       if (newCart[pizzaId] > 0) {
         newCart[pizzaId] -= 1;
         setTotalCartValue(totalCartValue - price);
@@ -69,7 +82,7 @@ export default function BuyPizzaModal({
   const handleBuy = async () => {
     setBuying(true);
     try {
-      const cartItems = Object.entries(cart).filter(
+      const cartItems = Object.entries(cart as Cart).filter(
         ([, quantity]) => quantity > 0
       );
 
@@ -113,7 +126,7 @@ export default function BuyPizzaModal({
                 Buy Pizza Slices for {user?.name}
               </h2>
               <div className="grid grid-cols-1 gap-2 mt-2">
-                {pizzas.map((pizza) => (
+                {pizzas.map((pizza: Pizza) => (
                   <div
                     key={pizza?.id}
                     className="relative rounded-lg border border-gray-300 bg-white px-4 py-3 shadow-sm flex items-center space-x-3 focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
