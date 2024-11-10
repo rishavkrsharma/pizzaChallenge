@@ -3,11 +3,29 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import firebase_admin
 from firebase_admin import credentials, firestore
+import json
+import base64
+import os
 from datetime import datetime
 
 # Initialize Firebase
-cred = credentials.Certificate("./serviceAccountKey.json")
-firebase_admin.initialize_app(cred)
+def initialize_firebase():
+    # Get the Firebase credentials from environment variable
+    encoded_credentials = os.getenv("FIREBASE_CREDENTIALS")
+
+    if not encoded_credentials:
+        raise HTTPException(status_code=500, detail="Firebase credentials not found in environment variables")
+
+    # Decode the base64-encoded JSON credentials
+    decoded_credentials = base64.b64decode(encoded_credentials)
+    credentials_dict = json.loads(decoded_credentials)
+
+    # Initialize Firebase app
+    cred = credentials.Certificate(credentials_dict)
+    firebase_admin.initialize_app(cred)
+
+initialize_firebase()
+# Firestore client
 db = firestore.client()
 
 app = FastAPI()
