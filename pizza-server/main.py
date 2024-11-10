@@ -263,7 +263,7 @@ async def get_user_purchased_slices(data: dict ):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.post("/users/pizza-logs-history")
+@app.post("/pizza-logs-history")
 async def pizza_logs_history(data: dict):
     try:
         user_id = data.get("userId")
@@ -282,9 +282,8 @@ async def pizza_logs_history(data: dict):
                 continue
             
             slice_data = db.collection('pizzaslices').document(slice_id).get()
-            if slice_data.exists:
-                pizza_info = slice_data.to_dict()
-                pizza_logs.append({
+            pizza_info = slice_data.to_dict()
+            pizza_logs.append({
                     "logId": log.id,
                     "timestamp": log_data.get('timestamp'),
                     "pizzaSlice": pizza_info,
