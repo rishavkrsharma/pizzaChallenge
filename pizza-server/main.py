@@ -287,9 +287,8 @@ async def pizza_logs_history(data: dict):
                 continue
             
             slice_data = db.collection('pizzaslices').document(slice_id).get()
-            if slice_data.exists:
-                pizza_info = slice_data.to_dict()
-                pizza_logs.append({
+            pizza_info = slice_data.to_dict()
+            pizza_logs.append({
                     "logId": log.id,
                     "timestamp": log_data.get('timestamp'),
                     "pizzaSlice": pizza_info,
