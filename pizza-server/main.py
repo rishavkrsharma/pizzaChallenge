@@ -25,6 +25,9 @@ def initialize_firebase():
     firebase_admin.initialize_app(cred)
 
 initialize_firebase()
+
+# cred = credentials.Certificate("./serviceAccountKey.json")
+# firebase_admin.initialize_app(cred)
 # Firestore client
 db = firestore.client()
 
@@ -114,6 +117,7 @@ async def delete_user(user_id: str):
 async def log_pizza(data: dict):  
     try:
         user_id = data.get("userId")
+        slice_id = data.get("sliceId")
         purchasedSliceId = data.get("purchasedSliceId")
 
         purchased_slice_ref = db.collection('purchasedSlices').document(purchasedSliceId)
@@ -129,7 +133,8 @@ async def log_pizza(data: dict):
         db.collection('pizzaLogs').add({
             'userId': user_id,
             'timestamp': datetime.now(),
-            'sliceId': purchasedSliceId
+            'purchasedSliceId': purchasedSliceId,
+            "sliceId": slice_id
         })
 
         user_ref = db.collection('users').document(user_id)
@@ -263,7 +268,7 @@ async def get_user_purchased_slices(data: dict ):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.post("/users/pizza-logs-history")
+@app.post("/pizza-logs-history")
 async def pizza_logs_history(data: dict):
     try:
         user_id = data.get("userId")
